@@ -23,13 +23,8 @@ export const SUPPORTED_LANGUAGES: Language[] = [
   { code: "ja", name: "Japanese", flag: "🇯🇵" },
   { code: "ko", name: "Korean", flag: "🇰🇷" },
   { code: "zh", name: "Chinese", flag: "🇨🇳" },
-  { code: "ar", name: "Arabic", flag: "🇸🇦" },
-  { code: "hi", name: "Hindi", flag: "🇮🇳" },
   { code: "ru", name: "Russian", flag: "🇷🇺" },
-  { code: "tr", name: "Turkish", flag: "🇹🇷" },
-  { code: "nl", name: "Dutch", flag: "🇳🇱" },
-  { code: "pl", name: "Polish", flag: "🇵🇱" },
-  { code: "sv", name: "Swedish", flag: "🇸🇪" },
+  { code: "hu", name: "Hungarian", flag: "🇭🇺" },
 ];
 
 /** Options shown in the pre-flight language picker. */
