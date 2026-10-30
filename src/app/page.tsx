@@ -1,100 +1,89 @@
-// Megnézzük, hogy a link végén ott van-e a ?role=listener
-const typeofWindow = typeof window !== 'undefined';
-const isListener = typeofWindow && new URLSearchParams(window.location.search).get('role') === 'listener';
-
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function Home() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+// Támogatott nyelvek definiálása (Magyar és Angol hozzáadva)
+const LANGUAGES = [
+  { name: "Hungarian", code: "hu" },
+  { name: "English", code: "en" },
+  { name: "Spanish", code: "es" },
+  { name: "German", code: "de" },
+  { name: "French", code: "fr" },
+];
 
-  function createSession() {
-    setLoading(true);
-    const sessionId = crypto.randomUUID();
-    router.push(`/session/${sessionId}`);
-  }
+export default function SessionPage() {
+  const searchParams = useSearchParams();
+  
+  // Ellenőrizzük, hogy a belépő hallgató-e (?role=listener a link végén)
+  const isListener = searchParams.get("role") === "listener";
+  
+  // Nyelv állapota: ha hallgató, automatikusan Angol ('en')
+  const [selectedLanguage, setSelectedLanguage] = useState(isListener ? "en" : "hu");
+  const [isMicOn, setIsMicOn] = useState(!isListener);
+  const [isCameraOn, setIsCameraOn] = useState(false);
+
+  useEffect(() => {
+    if (isListener) {
+      // Hallgatónál a mikrofont és kamerát kötelezően kikapcsoljuk
+      setIsMicOn(false);
+      setIsCameraOn(false);
+      setSelectedLanguage("en");
+    }
+  }, [isListener]);
 
   return (
-    <div className="page">
-      <div className="container" style={{ textAlign: "center" }}>
-        {/* Title */}
-        <h1 className="display display-xl enter" style={{ marginBottom: 24 }}>
-          <em>Live</em> Translate
-        </h1>
-
-        {/* Subtitle */}
-        <p
-          className="body enter-d1"
-          style={{ maxWidth: 340, margin: "0 auto 48px" }}
-        >
-          Multi-language video calls. Everyone picks their language.
-          Translation spins up on demand.
-        </p>
-
-        {/* CTA */}
-        <div className="enter-d2">
-          <button
-            className="btn btn-dark"
-            onClick={createSession}
-            disabled={loading}
-            id="create-session-btn"
-          >
-            {loading ? (
-              <>
-                <span className="spinner" /> Creating…
-              </>
-            ) : (
-              "Create session"
-            )}
-          </button>
+    <div className="session-container" style={{ padding: 24, textAlign: "center" }}>
+      <h2>{isListener ? "Élő Istentisztelet Fordítás" : "Előadói Felület"}</h2>
+      
+      {/* 1. HALLGATÓI NÉZET: Letisztult felület gombok nélkül */}
+      {isListener ? (
+        <div className="listener-box" style={{ marginTop: 40, padding: 20, border: "1px solid #ccc", borderRadius: 8 }}>
+          <p style={{ fontSize: 18, color: "#4B5563" }}>
+            Csatlakozva mint: <strong>Hallgató (Listener)</strong>
+          </p>
+          <p style={{ fontSize: 22, fontWeight: "bold", margin: "16px 0", color: "#111827" }}>
+            Nyelv: English (Angol)
+          </p>
+          <p style={{ fontSize: 14, color: "#6B7280" }}>
+            🎧 Használj fülhallgatót az élő fordítás hallgatásához!
+          </p>
         </div>
+      ) : (
+        /* 2. ELŐADÓI NÉZET: Mikrofon, kamera és nyelválasztó az előadónak */
+        <div className="host-controls" style={{ marginTop: 40 }}>
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ marginRight: 12, fontWeight: "bold" }}>Beszélt nyelv:</label>
+            <select 
+              value={selectedLanguage} 
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              style={{ padding: "8px 12px", fontSize: 16 }}
+            >
+              {LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Steps */}
-        <div
-          className="enter-d3"
-          style={{
-            marginTop: 80,
-            display: "flex",
-            flexDirection: "column",
-            gap: 0,
-            textAlign: "left",
-          }}
-        >
-          <hr className="rule" />
-          {[
-            "Pick your language and turn on your camera",
-            "Share the link with everyone joining the call",
-            "Each language pair spins up one Gemini session on demand",
-          ].map((text, i) => (
-            <div key={i}>
-              <div
-                style={{
-                  display: "flex",
-                  gap: 16,
-                  padding: "18px 0",
-                  alignItems: "baseline",
-                }}
-              >
-                <span className="mono" style={{ flexShrink: 0 }}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="body-sm" style={{ color: "var(--fg-secondary)" }}>
-                  {text}
-                </p>
-              </div>
-              <hr className="rule" />
-            </div>
-          ))}
+          <div style={{ display: "flex", justifyContent: "center", gap: 16 }}>
+            <button 
+              onClick={() => setIsMicOn(!isMicOn)}
+              style={{ padding: "12px 24px", background: isMicOn ? "#10B981" : "#EF4444", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}
+            >
+              {isMicOn ? "Mikrofon: BE" : "Mikrofon: KI"}
+            </button>
+
+            <button 
+              onClick={() => setIsCameraOn(!isCameraOn)}
+              style={{ padding: "12px 24px", background: isCameraOn ? "#10B981" : "#6B7280", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}
+            >
+              {isCameraOn ? "Kamera: BE" : "Kamera: KI"}
+            </button>
+          </div>
         </div>
-
-        {/* Footer */}
-        <p className="mono enter-d4" style={{ marginTop: 48 }}>
-          Powered by Gemini Live API + LiveKit
-        </p>
-      </div>
+      )}
     </div>
   );
 }
