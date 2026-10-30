@@ -1,3 +1,7 @@
+// Megnézzük, hogy a link végén ott van-e a ?role=listener
+const typeofWindow = typeof window !== 'undefined';
+const isListener = typeofWindow && new URLSearchParams(window.location.search).get('role') === 'listener';
+
 "use client";
 
 import { useState } from "react";
